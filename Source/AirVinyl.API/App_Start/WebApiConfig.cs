@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using System.Web.OData.Builder;
+using System.Web.OData.Extensions;
+using AirVinyl.Model;
+using Microsoft.OData.Edm;
 
 namespace AirVinyl.API
 {
@@ -11,14 +15,20 @@ namespace AirVinyl.API
         {
             // Web API configuration and services
 
-            // Web API routes
-            config.MapHttpAttributeRoutes();
+            config.MapODataServiceRoute("ODataRoute", "odata", GetEdmModel());
+            config.EnsureInitialized();
+        }
 
-            config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
-            );
+        private static IEdmModel GetEdmModel()
+        {
+            var builder = new ODataConventionModelBuilder();
+            builder.Namespace = "AirVinyl";
+            builder.ContainerName = "AirVinylContainer";
+
+            builder.EntitySet<Person>("People");
+            builder.EntitySet<VinylRecord>("VinylRecords");
+
+            return builder.GetEdmModel();
         }
     }
 }
