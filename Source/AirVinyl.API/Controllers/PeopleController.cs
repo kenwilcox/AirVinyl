@@ -17,6 +17,17 @@ namespace AirVinyl.API.Controllers
             return Ok(_context.People);
         }
 
+        public IHttpActionResult Get([FromODataUri] int key)
+        {
+            var person = _context.People.FirstOrDefault(p => p.PersonId == key);
+            if (person == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(person);
+        }
+
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();
