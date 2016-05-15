@@ -78,6 +78,38 @@ namespace AirVinyl.API.Controllers
             return this.CreateOKHttpActionResult(collectionPropertyValue);
         }
 
+        [HttpGet]
+        [ODataRoute("People({key})/Email/$value")]
+        [ODataRoute("People({key})/FirstName/$value")]
+        [ODataRoute("People({key})/LastName/$value")]
+        [ODataRoute("People({key})/DateOfBirth/$value")]
+        [ODataRoute("People({key})/Gender/$value")]
+        public IHttpActionResult GetPersonPropertyRawValue([FromODataUri] int key)
+        {
+            var person = _context.People.FirstOrDefault(p => p.PersonId == key);
+            if (person == null)
+            {
+                return NotFound();
+            }
+
+            var propertyToGet = Url.Request.RequestUri
+                .Segments[Url.Request.RequestUri.Segments.Length - 2].TrimEnd('/');
+
+            if (!person.HasProperty(propertyToGet))
+            {
+                return NotFound();
+            }
+
+            var propertyValue = person.GetValue(propertyToGet);
+
+            if (propertyValue == null)
+            {
+                return StatusCode(System.Net.HttpStatusCode.NoContent);
+            }
+
+            return this.CreateOKHttpActionResult(propertyValue.ToString());
+        }
+
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();
