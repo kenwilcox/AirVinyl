@@ -20,6 +20,19 @@ namespace AirVinyl.API.Controllers
             return Ok(_context.VinylRecords);
         }
 
+        [HttpGet]
+        [ODataRoute("VinylRecords({key})")]
+        public IHttpActionResult GetOneVinylRecord([FromODataUri] int key)
+        {
+            var vinylRecord = _context.VinylRecords.FirstOrDefault(p => p.VinylRecordId == key);
+            if (vinylRecord == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(vinylRecord);
+        }
+
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();
