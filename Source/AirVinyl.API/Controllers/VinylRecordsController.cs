@@ -4,17 +4,20 @@ using System.Linq;
 using System.Web;
 using System.Web.Http;
 using System.Web.OData;
+using System.Web.OData.Routing;
 using AirVinyl.DataAccessLayer;
 
 namespace AirVinyl.API.Controllers
 {
-    public class PeopleController : ODataController
+    public class VinylRecordsController: ODataController
     {
         private readonly AirVinylDbContext _context = new AirVinylDbContext();
 
-        public IHttpActionResult Get()
+        [HttpGet]
+        [ODataRoute("VinylRecords")]
+        public IHttpActionResult GetAllVinylRecords()
         {
-            return Ok(_context.People);
+            return Ok(_context.VinylRecords);
         }
 
         protected override void Dispose(bool disposing)
