@@ -7,6 +7,7 @@ using System.Web.OData;
 using System.Web.OData.Routing;
 using AirVinyl.DataAccessLayer;
 using AirVinyl.API.Helpers;
+using AirVinyl.Model;
 
 namespace AirVinyl.API.Controllers
 {
@@ -108,6 +109,19 @@ namespace AirVinyl.API.Controllers
             }
 
             return this.CreateOKHttpActionResult(propertyValue.ToString());
+        }
+
+        public IHttpActionResult Post(Person person)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.People.Add(person);
+            _context.SaveChanges();
+
+            return Created(person);
         }
 
         protected override void Dispose(bool disposing)
