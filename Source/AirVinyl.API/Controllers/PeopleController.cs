@@ -158,7 +158,10 @@ namespace AirVinyl.API.Controllers
                 return NotFound();
             }
 
+            var id = currentPerson.PersonId;
             patch.Patch(currentPerson);
+            // You can't update the id - so "reset it"
+            currentPerson.PersonId = id;
             _context.SaveChanges();
 
             return StatusCode(HttpStatusCode.NoContent);
