@@ -251,6 +251,28 @@ namespace AirVinyl.API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [HttpDelete]
+        [ODataRoute("People({key})/Friends({relatedKey})/$ref")]
+        public IHttpActionResult DeleteLinkToFriend([FromODataUri] int key, [FromODataUri] int relatedKey)
+        {
+            var currentPerson = _context.People.Include("Friends").FirstOrDefault(p => p.PersonId == key);
+            if (currentPerson == null)
+            {
+                return NotFound();
+            }
+
+            var friend = currentPerson.Friends.FirstOrDefault(f => f.PersonId == relatedKey);
+            if (friend == null)
+            {
+                return NotFound();
+            }
+
+            currentPerson.Friends.Remove(friend);
+            _context.SaveChanges();
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();
