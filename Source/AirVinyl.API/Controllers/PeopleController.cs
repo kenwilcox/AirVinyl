@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Http;
 using System.Web.OData;
@@ -54,7 +55,7 @@ namespace AirVinyl.API.Controllers
             var propertyValue = person.GetValue(propertyToGet);
             if (propertyValue == null)
             {
-                return StatusCode(System.Net.HttpStatusCode.NoContent);
+                return StatusCode(HttpStatusCode.NoContent);
             }
 
             return this.CreateOKHttpActionResult(propertyValue);
@@ -105,7 +106,7 @@ namespace AirVinyl.API.Controllers
 
             if (propertyValue == null)
             {
-                return StatusCode(System.Net.HttpStatusCode.NoContent);
+                return StatusCode(HttpStatusCode.NoContent);
             }
 
             return this.CreateOKHttpActionResult(propertyValue.ToString());
@@ -122,6 +123,26 @@ namespace AirVinyl.API.Controllers
             _context.SaveChanges();
 
             return Created(person);
+        }
+
+        public IHttpActionResult Put([FromODataUri] int key, Person person)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var currentPerson = _context.People.FirstOrDefault(p => p.PersonId == key);
+            if (currentPerson == null)
+            {
+                return NotFound();
+            }
+
+            person.PersonId = currentPerson.PersonId;
+            _context.Entry(currentPerson).CurrentValues.SetValues(person);
+            _context.SaveChanges();
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         protected override void Dispose(bool disposing)
