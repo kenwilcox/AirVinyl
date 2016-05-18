@@ -167,6 +167,27 @@ namespace AirVinyl.API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        public IHttpActionResult Delete([FromODataUri] int key)
+        {
+            var currentPerson = _context.People.Include("Friends").FirstOrDefault(p => p.PersonId == key);
+            if (currentPerson == null)
+            {
+                return NotFound();
+            }
+
+            var peopleWithCurrentPersonAsFriend = _context.People.Include("Friends")
+                .Where(p => p.Friends.Select(f => f.PersonId).AsQueryable().Contains(key));
+            foreach (var person in peopleWithCurrentPersonAsFriend.ToList())
+            {
+                person.Friends.Remove(currentPerson);
+            }
+
+            _context.People.Remove(currentPerson);
+            _context.SaveChanges();
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();
