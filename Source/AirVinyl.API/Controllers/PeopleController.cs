@@ -188,6 +188,34 @@ namespace AirVinyl.API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [HttpPost]
+        [ODataRoute("People({key})/Friends/$ref")]
+        public IHttpActionResult CreateLinkToFriend([FromODataUri] int key, [FromBody] Uri link)
+        {
+            var currentPerson = _context.People.Include("Friends").FirstOrDefault(p => p.PersonId == key);
+            if (currentPerson == null)
+            {
+                return NotFound();
+            }
+
+            var keyOfFriendToAdd = Request.GetKeyValue<int>(link);
+            if (currentPerson.Friends.Any(i => i.PersonId == keyOfFriendToAdd))
+            {
+                return BadRequest($"The person with id {key} is already linked to the person with id {keyOfFriendToAdd}");
+            }
+
+            var friendToLinkTo = _context.People.FirstOrDefault(p => p.PersonId == keyOfFriendToAdd);
+            if (friendToLinkTo == null)
+            {
+                return NotFound();
+            }
+
+            currentPerson.Friends.Add(friendToLinkTo);
+            _context.SaveChanges();
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();
