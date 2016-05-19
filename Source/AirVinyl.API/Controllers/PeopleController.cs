@@ -16,11 +16,13 @@ namespace AirVinyl.API.Controllers
     {
         private readonly AirVinylDbContext _context = new AirVinylDbContext();
 
+        [EnableQuery]
         public IHttpActionResult Get()
         {
             return Ok(_context.People);
         }
 
+        [EnableQuery]
         public IHttpActionResult Get([FromODataUri] int key)
         {
             var person = _context.People.FirstOrDefault(p => p.PersonId == key);
