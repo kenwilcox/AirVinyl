@@ -25,13 +25,21 @@ namespace AirVinyl.API.Controllers
         [EnableQuery]
         public IHttpActionResult Get([FromODataUri] int key)
         {
-            var person = _context.People.FirstOrDefault(p => p.PersonId == key);
-            if (person == null)
+            //var person = _context.People.FirstOrDefault(p => p.PersonId == key);
+            //if (person == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //return Ok(person);
+
+            var people = _context.People.Where(p => p.PersonId == key);
+            if (!people.Any())
             {
                 return NotFound();
             }
 
-            return Ok(person);
+            return Ok(SingleResult.Create(people));
         }
 
         [HttpGet]
