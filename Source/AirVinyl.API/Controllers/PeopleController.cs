@@ -16,7 +16,7 @@ namespace AirVinyl.API.Controllers
     {
         private readonly AirVinylDbContext _context = new AirVinylDbContext();
 
-        [EnableQuery]
+        [EnableQuery(MaxExpansionDepth =3)]
         public IHttpActionResult Get()
         {
             return Ok(_context.People);
@@ -72,8 +72,23 @@ namespace AirVinyl.API.Controllers
         }
 
         [HttpGet]
-        [ODataRoute("People({key})/Friends")]
         [ODataRoute("People({key})/VinylRecords")]
+        [EnableQuery]
+        public IHttpActionResult GetVinylRecordsForPerson([FromODataUri] int key)
+        {
+            var person = _context.People.FirstOrDefault(p => p.PersonId == key);
+            if (person == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(_context.VinylRecords.Where(v => v.Person.PersonId == key));
+        }
+
+        [HttpGet]
+        [ODataRoute("People({key})/Friends")]
+        //[ODataRoute("People({key})/VinylRecords")]
+        [EnableQuery]
         public IHttpActionResult GetPersonCollectionProperty([FromODataUri] int key)
         {
             var collectionPropertyToGet = Url.Request.RequestUri.Segments.Last();
