@@ -76,6 +76,18 @@ namespace AirVinyl.API.Controllers
             return this.CreateOKHttpActionResult(recordStores);
         }
 
+        [HttpGet]
+        [ODataRoute("GetHighRatedRecordStores(minimumRating={minimumRating})")]
+        public IHttpActionResult GetHighRatedRecordStores([FromODataUri] int minimumRating)
+        {
+            // get the RecordStores
+            var recordStores = _context.RecordStores
+                .Where(p => p.Ratings.Any()
+                    && (p.Ratings.Sum(r => r.Value) / p.Ratings.Count) >= minimumRating);
+
+            return this.CreateOKHttpActionResult(recordStores);
+        }
+
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();

@@ -38,6 +38,11 @@ namespace AirVinyl.API
             areRatedByFunction.CollectionParameter<int>("personIds");
             areRatedByFunction.Namespace = "AirVinyl.Functions";
 
+            var getHighRatedRecordStoresFunction = builder.Function("GetHighRatedRecordStores");
+            getHighRatedRecordStoresFunction.Parameter<int>("minimumRating");
+            getHighRatedRecordStoresFunction.ReturnsCollectionFromEntitySet<RecordStore>("RecordStores");
+            getHighRatedRecordStoresFunction.Namespace = "AirVinyl.Functions";
+
             return builder.GetEdmModel();
         }
     }
