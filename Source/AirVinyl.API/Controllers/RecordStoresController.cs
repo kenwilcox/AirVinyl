@@ -65,6 +65,17 @@ namespace AirVinyl.API.Controllers
             return (recordStore != null);
         }
 
+        [HttpGet]
+        [ODataRoute("RecordStores/AirVinyl.Functions.AreRatedBy(personIds={personIds})")]
+        public IHttpActionResult AreRatedBy([FromODataUri] IEnumerable<int> personIds)
+        {
+            // get the RecordStores
+            var recordStores = _context.RecordStores
+                .Where(p => p.Ratings.Any(r => personIds.Contains(r.RatedBy.PersonId)));
+
+            return this.CreateOKHttpActionResult(recordStores);
+        }
+
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();
