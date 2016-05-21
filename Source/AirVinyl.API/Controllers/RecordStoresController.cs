@@ -155,6 +155,58 @@ namespace AirVinyl.API.Controllers
             }
         }
 
+        [HttpPost]
+        [ODataRoute("RecordStores/AirVinyl.Actions.RemoveRatings")]
+        public IHttpActionResult RemoveRatings(ODataActionParameters parameters)
+        {
+            // from the param dictionary, get the personid
+            int personId;
+            object outputFromDictionary;
+
+            if (!parameters.TryGetValue("personId", out outputFromDictionary))
+            {
+                return NotFound();
+            }
+
+            if (!int.TryParse(outputFromDictionary.ToString(), out personId))
+            {
+                return NotFound();
+            }
+
+            // get the RecordStores that were rated by the person with personId
+            var recordStoresRatedByCurrentPerson = _context.RecordStores
+                .Include("Ratings").Include("Ratings.RatedBy")
+                .Where(p => p.Ratings.Any(r => r.RatedBy.PersonId == personId)).ToList();
+
+            // remove those ratings
+            foreach (var store in recordStoresRatedByCurrentPerson)
+            {
+                // get the ratings by the current person
+                var ratingsByCurrentPerson = store.Ratings
+                    .Where(r => r.RatedBy.PersonId == personId).ToList();
+
+                for (int i = 0; i < ratingsByCurrentPerson.Count(); i++)
+                {
+                    store.Ratings.Remove(ratingsByCurrentPerson[i]);
+                }
+            }
+
+            // save changes
+            if (_context.SaveChanges() > -1)
+            {
+                // return true
+                return this.CreateOKHttpActionResult(true);
+            }
+            else
+            {
+                // Something went wrong - we expect our
+                // action to return false in that case.
+                // The request is still successful, false
+                // is a valid response
+                return this.CreateOKHttpActionResult(false);
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();

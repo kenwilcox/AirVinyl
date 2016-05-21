@@ -54,6 +54,12 @@ namespace AirVinyl.API
             rateAction.Parameter<int>("personId");
             rateAction.Namespace = "AirVinyl.Actions";
 
+            // action bound to RecordStore collection
+            var removeRatingsAction = builder.EntityType<RecordStore>().Collection.Action("RemoveRatings");
+            removeRatingsAction.Returns<bool>();
+            removeRatingsAction.Parameter<int>("personId");
+            removeRatingsAction.Namespace = "AirVinyl.Actions";
+
             return builder.GetEdmModel();
         }
     }
