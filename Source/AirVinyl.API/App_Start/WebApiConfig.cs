@@ -60,6 +60,11 @@ namespace AirVinyl.API
             removeRatingsAction.Parameter<int>("personId");
             removeRatingsAction.Namespace = "AirVinyl.Actions";
 
+            // unbound action
+            var removeRecordStoreRatingsAction = builder.Action("RemoveRecordStoreRatings");
+            removeRecordStoreRatingsAction.Parameter<int>("personId");
+            removeRecordStoreRatingsAction.Namespace = "AirVinyl.Actions";
+
             return builder.GetEdmModel();
         }
     }
