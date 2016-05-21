@@ -1,5 +1,6 @@
 ﻿using AirVinyl.API.Helpers;
 using AirVinyl.DataAccessLayer;
+using AirVinyl.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,6 +87,72 @@ namespace AirVinyl.API.Controllers
                     && (p.Ratings.Sum(r => r.Value) / p.Ratings.Count) >= minimumRating);
 
             return this.CreateOKHttpActionResult(recordStores);
+        }
+
+        [HttpPost]
+        [ODataRoute("RecordStores({key})/AirVinyl.Actions.Rate")]
+        public IHttpActionResult Rate([FromODataUri] int key, ODataActionParameters parameters)
+        {
+            // get the RecordStore
+            var recordStore = _context.RecordStores
+              .FirstOrDefault(p => p.RecordStoreId == key);
+
+            if (recordStore == null)
+            {
+                return NotFound();
+            }
+
+            // from the param dictionary, get the rating & personid
+            int rating;
+            int personId;
+            object outputFromDictionary;
+
+            if (!parameters.TryGetValue("rating", out outputFromDictionary))
+            {
+                return NotFound();
+            }
+
+            if (!int.TryParse(outputFromDictionary.ToString(), out rating))
+            {
+                return NotFound();
+            }
+
+            if (!parameters.TryGetValue("personId", out outputFromDictionary))
+            {
+                return NotFound();
+            }
+
+            if (!int.TryParse(outputFromDictionary.ToString(), out personId))
+            {
+                return NotFound();
+            }
+
+            // the person must exist
+            var person = _context.People
+            .FirstOrDefault(p => p.PersonId == personId);
+
+            if (person == null)
+            {
+                return NotFound();
+            }
+
+            // everything checks out, add the rating
+            recordStore.Ratings.Add(new Rating() { RatedBy = person, Value = rating });
+
+            // save changes
+            if (_context.SaveChanges() > -1)
+            {
+                // return true
+                return this.CreateOKHttpActionResult(true);
+            }
+            else
+            {
+                // Something went wrong - we expect our
+                // action to return false in that case.
+                // The request is still successful, false
+                // is a valid response
+                return this.CreateOKHttpActionResult(false);
+            }
         }
 
         protected override void Dispose(bool disposing)
