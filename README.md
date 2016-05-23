@@ -1,3 +1,4 @@
 # AirVinyl
 Checking out OData V4.
-Poop - really.
+
+Just checking it out following a plural sight course. It's getting long, I might be done.
